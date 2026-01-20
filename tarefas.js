@@ -1,5 +1,22 @@
 // Array para armazenar as tarefas
-let tasks = [];
+let tasks = [
+    {
+        id: 1,
+        title: 'Estudar JavaScript',
+        description: 'Revisar conceitos de manipulação do DOM e eventos',
+        deadline: '2026-01-25',
+        completed: false,
+        deleted: false
+    },
+    {
+        id: 2,
+        title: 'Fazer exercícios',
+        description: 'Completar os exercícios práticos do curso',
+        deadline: '2026-01-30',
+        completed: false,
+        deleted: false
+    }
+];
 
 // Função para adicionar uma nova tarefa
 function addTask(event) {
