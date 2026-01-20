@@ -14,7 +14,8 @@ function addTask(event) {
         title: title,
         description: description,
         deadline: deadline,
-        completed: false
+        completed: false,
+        deleted: false
     };
     
     tasks.push(task);
@@ -42,18 +43,49 @@ function renderTasks() {
         const taskItem = document.createElement('div');
         taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
         
-        taskItem.innerHTML = `
-            <div class="task-header">
-                <h3 class="task-title">${task.title}</h3>
-            </div>
-            <p class="task-description">${task.description}</p>
-            <div class="task-deadline">📅 Deadline: ${formatDate(task.deadline)}</div>
-            <div class="checkbox-container">
-                <input type="checkbox" id="task-${task.id}" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${task.id})">
-                <label for="task-${task.id}">Concluída</label>
-            </div>
-            <button class="btn-delete" onclick="deleteTask(${task.id})">🗑️ Excluir</button>
-        `;
+        // Create elements safely to prevent XSS
+        const taskHeader = document.createElement('div');
+        taskHeader.className = 'task-header';
+        
+        const taskTitle = document.createElement('h3');
+        taskTitle.className = 'task-title';
+        taskTitle.textContent = task.title;
+        taskHeader.appendChild(taskTitle);
+        
+        const taskDescription = document.createElement('p');
+        taskDescription.className = 'task-description';
+        taskDescription.textContent = task.description;
+        
+        const taskDeadline = document.createElement('div');
+        taskDeadline.className = 'task-deadline';
+        taskDeadline.textContent = `📅 Deadline: ${formatDate(task.deadline)}`;
+        
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.className = 'checkbox-container';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `task-${task.id}`;
+        checkbox.checked = task.completed;
+        checkbox.onchange = () => toggleComplete(task.id);
+        
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.setAttribute('for', `task-${task.id}`);
+        checkboxLabel.textContent = 'Concluída';
+        
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(checkboxLabel);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'btn-delete';
+        deleteButton.textContent = '🗑️ Excluir';
+        deleteButton.onclick = () => deleteTask(task.id);
+        
+        taskItem.appendChild(taskHeader);
+        taskItem.appendChild(taskDescription);
+        taskItem.appendChild(taskDeadline);
+        taskItem.appendChild(checkboxContainer);
+        taskItem.appendChild(deleteButton);
         
         tasksList.appendChild(taskItem);
     });
@@ -61,7 +93,8 @@ function renderTasks() {
 
 // Função para formatar a data
 function formatDate(dateString) {
-    const date = new Date(dateString + 'T00:00:00');
+    const [year, month, day] = dateString.split('-');
+    const date = new Date(year, month - 1, day);
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('pt-BR', options);
 }
